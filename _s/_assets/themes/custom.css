@@ -1,0 +1,32 @@
+@import url('https://pagecdn.io/lib/reveal/3.8.0/css/theme/league.min.css');
+
+.reveal h3 {
+    font-size: 1.7em;
+    text-transform: none;
+    text-shadow: 1px 1px black;
+}
+
+.reveal pre {
+    width: 95%;
+}
+
+.reveal pre code {
+    max-height: 450px;
+}
+
+.reveal {
+    font-size: 30px;
+}
+
+.reveal blockquote {
+    text-align: left;
+    font-size: medium;
+}
+
+.reveal code {
+    border-radius: 4px;
+    background-color: dimgrey;
+    font-size: 22px;
+    font-style: normal;
+    padding: 5px;
+}
