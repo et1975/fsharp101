@@ -1,0 +1,495 @@
+---
+title: FSharp 101
+separator: <!-s->
+verticalSeparator: <!-v->
+theme: theme/custom.css
+highlight-theme: github
+---
+### Getting started with FSharp
+
+<div>
+  <img style="border:0;vertical-align:middle" src="https://fsharpforfunandprofit.com/assets/img/IHeartFsharp160.png" />
+</div>
+
+
+<!-s->
+
+### Overview
+`F#` is a member of the ML language family and originated as a .NET Framework implementation of the programming language `OCaml`.
+Today `F#` compiles to `IL`, `JS`, CUDA with efforts under way to compile to BEAM bytecode and `PHP`.
+
+* Functional-first
+* Expressions over Statements
+* Algebraic types
+* Pattern matching
+
+It works in scripting (`.fsx`) and project-based variants.
+
+<!-v->
+### Installation
+Download .NET Core SDK 3.1.100:
+https://dotnet.microsoft.com/download
+
+Terminology:
+- CLR - Common Language Runtime
+- BCL - Base Class Library
+- IL - Intermediate Language
+
+> Standards and Runtimes:</br>
+> https://docs.microsoft.com/en-us/dotnet/standard/net-standard
+
+<!-v->
+### REPL from the command-line
+`> dotnet fsi`
+
+```fsharp
+printfn "Hello world";;
+#quit;; // to quit
+```
+
+<!-v->
+### REPL online
+https://fable.io/repl/
+
+
+<!-v->
+### The language
+* 5min tour: https://docs.microsoft.com/en-us/dotnet/fsharp/tour
+* Reference: https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference
+* Formatting: https://docs.microsoft.com/en-us/dotnet/fsharp/style-guide/formatting
+
+
+<!-s->
+### Bindings
+
+> A binding associates an identifier with a value or function.
+
+Values:
+```fsharp
+let one = 1 
+let two = "two" 
+```
+
+Functions:
+```fsharp
+let multiply x y = x * y
+let multiplyBy2 = multiply 2
+let add (x,y) = x + y
+let square x = multiply x x
+```
+Also check out `(*)`, `int`, `string`...
+
+> Why `let`?
+
+<!-v->
+### Bindings
+
+`#light` syntax and the verbose version of `let`:
+```fsharp
+let xs = [1..3] in printfn "%A" xs
+```
+
+What's wrong with the following?
+
+```fsharp
+let double x =
+  let y = multiply 2 x
+```
+
+<!-v->
+### Immutability and Expressions
+
+```fsharp
+let f x condition =
+  let z = if condition x then 1 else 2
+  z * 2 
+```
+
+Some problems here:
+```fsharp
+let f x =
+  match x with
+  | "one" -> 1
+  | "two" -> 2
+  | "three" -> 3.
+```
+
+<!-v->
+### Unit and `do` binding
+`unit` is a type used to denote what other languages may use `void` for, the instance of it is `()`.
+
+```fsharp
+do 
+  printfn "Hello!"
+```
+Unless an expression returns `unit`, `F#` requires that you do something with it and sometime you just have to `ignore` it:
+```fsharp
+sprintf "This is useless!" |> ignore
+```
+
+<!-v->
+### Functions
+
+```fsharp
+[1..3]
+|> List.map square
+```
+```fsharp
+[|1..3|]
+|> Array.map square
+```
+```fsharp
+seq { yield 1; yield 2; yield 3; }
+|> Seq.map square
+
+```
+Let's look at the signature of `List.map`:
+```fsharp
+List.map: mapping:('T -> 'U) -> list:'T list -> 'U list
+```
+* Replace `square` with a lambda: `(fun x -> ?)`
+* Look at the signature of `List.map square`
+
+<!-v->
+### Recursion and `and`
+
+```fsharp
+let rec even x = 
+  if x = 0 then true 
+  else odd (x-1) 
+and odd x = 
+  if x = 0 then false 
+  else even (x-1)
+
+type Z = Z of Y
+and Y = Y of int 
+```
+
+<!-v->
+### Types
+
+* Tuples, defining: `string * int` and using `("b",2)`
+* Discriminated Union:</br>
+  `type Result<'ok,'err> = Ok of 'ok | Error of 'err`  
+* Record:</br>
+  `type R = { X: int; Y: string }`
+* Interface:</br>
+  `type I = abstract member Foo: unit -> string`
+* Class:</br>
+  `type C() = interface I with member __.Foo() = "hello"`
+* Enum:</br>
+  `type E = One = 1 | Two = 2`
+* Literals:</br>
+  `let [<Literal>] One = "one"`
+* Units of measure:</br>
+  `[<Measure>] type cm` and `[<Measure>] type ml = cm^3`
+
+<!-v->
+### Pattern matching
+Core DUs:
+```fsharp
+type Result<'ok,'err> = Ok of 'ok | Error of 'err
+type Option<'t> = Some of 't | None
+type Choice<'a,'b> = Choice1Of2 of 'a | Choice2Of2 of 'b
+type Choice<'a,'b,'c> = 
+  Choice1Of3 of 'a | Choice2Of3 of 'b | Choice3Of3 of 'c
+```
+
+Pattern matching examples:
+```fsharp
+let f x =
+  match x with
+  | Choice1Of3 v -> doSomething v
+  | Choice2Of3 err -> log err
+  | _ -> ()
+
+let konst x _ = x
+let f ((x,y) as z) = x + y; z
+let { X = x; Y = y } = r
+let (SingleCaseDU (a,b)) = singleCaseDU
+```
+
+
+<!-v->
+### IDE
+1. https://code.visualstudio.com/download
+1. Press `Cmd + Shift + P` and enter the following to install
+   - the Ionide extension for VS Code:</br>
+    `ext install ionide-fsharp`
+   - the MS Project support for VS Code:</br>
+    `ext install msbuild-project-tools`
+1. Open your command prompt: `Ctrl + ~`
+
+<!-v->
+### Code organizatioin and deployment
+
+* Projects
+* Files
+* Namespaces
+* Modules
+
+Unit of deployment: Assembly
+
+<!-v->
+### Projects
+1. `mkdir fsharp101 && cd fsharp101`
+1. `dotnet --info`
+1. `dotnet new globaljson --sdk-version 3.1.100`
+1. `dotnet new -h`
+1. `dotnet new xunit -lang f# -n Tests`
+1. `code .`
+1. `Ctrl + Shift + B`
+
+Major elements:
+* `PropertyGroup`
+  * `OutputType` and `TargetFramework`
+* `ItemGroup`
+  * `Compile` - order matters!
+  * `ProjectReference`
+  * `PackageReference`
+
+<!-v->
+### Nuget packages
+Common feed: https://nuget.org
+
+Adding a package dependency:
+`dotnet add Tests package Unquote`
+
+Take a look at your `~/.nuget/packages`
+
+Let's change `Tests.fs`:
+
+```fsharp
+open Swenson.Unquote
+```
+
+and replace the assertion with:
+```fsharp
+true =! false
+```
+Run the tests:
+`dotnet test Tests`
+
+<!-v->
+### Add a library project
+`dotnet new classlib -lang f# -n Lab`
+
+add a reference to it from our Tests project:
+
+`dotnet add Tests reference Lab`
+
+* Paste [this](https://gist.github.com/et1975/10202cb534f595559d4afebe786a51d2#file-library-fs) over the `Lab/Library.fs` content.
+* Paste [this](https://gist.github.com/et1975/10202cb534f595559d4afebe786a51d2#file-tests-fs) over the `Tests/Tests.fs` content.
+
+Define the types and the `update` function and get the tests to pass.
+
+<!-v->
+### Review
+
+<!-s->
+### Active patterns
+
+```fsharp
+let (|Even|Odd|) input =
+  if input % 2 = 0 then Even input else Odd input
+
+let testNumer =
+  function
+  | Even n -> printfn "%d is even" n
+  | Odd n -> printfn "%d is odd" n
+
+testNumer 7
+testNumer 11
+testNumer 42
+```
+
+<!-v->
+### Function composition
+
+```fsharp
+let f (a:string) = 
+  match System.Int32.TryParse a with
+  | true, v -> Ok v
+  | _ -> sprintf "Unable to parse: %s" a |> Error 
+
+let g (b:Result<int,string>) = 
+  match b with
+  | Ok x -> string x
+  | Error err -> err
+
+let h = f >> g
+
+["0"; "42"; "Deep Thought"] |> List.map h 
+```
+
+<!-v->
+### Composition using "boxed" values
+
+```fsharp
+let f (a:string) = 
+  match System.Int32.TryParse a with
+  | true, v -> Ok v
+  | _ -> sprintf "Unable to parse: %s" a |> Error 
+
+let g (b:int) = 
+  match b with
+  | 0 -> Error "No Zeros allowed"
+  | x -> Ok (string x) 
+
+let ( >=> ) left right = left >> Result.bind right
+
+let h = f >=> g
+
+["0"; "42"; "Deep Thought"] |> List.map h 
+```
+
+<!-v->
+### Computation expressions (CEs)
+
+```fsharp
+async {
+  let! r =
+    httpClient.SendAsync msg |> Async.AwaitTask
+  return! 
+    r.Content.ReadAsStringAsync() |> Async.AwaitTask
+}
+
+```
+CE-specific keywords:
+``` fsharp
+expr { let! ... }
+expr { do! ... }
+expr { yield ... }
+expr { yield! ... }
+expr { return ... }
+expr { return! ... }
+expr { match! ... }
+```
+
+<!-v->
+### JSON serialization with Chiron
+```fsharp
+type User =
+  { Name: string
+    IsAdmin: bool }
+  static member ToJson (x:User) = json {
+    do! Json.write "name" x.Name
+    do! Json.write "isAdmin" x.IsAdmin
+  }
+  static member FromJson (_:User) = json {
+    let! n = Json.read "name"
+    let! a = Json.read "isAdmin"
+    return { Name = n; IsAdmin = a }
+  }
+```
+
+<!-v->
+### Serving HTTP with Suave
+
+```fsharp
+let routes =
+    choose [
+        HEAD >=> path "/" >=> Successful.NO_CONTENT
+        GET >=> choose [
+            path "/api" >=> get
+        ]
+        POST >=> choose [
+            path "/api" >=> post
+            pathScan "/api/%s" manage
+        ]
+        RequestErrors.NOT_FOUND "not found"
+    ]
+
+({ defaultConfig with
+    hideHeader = true
+    bindings = [HttpBinding.createSimple HTTP "0.0.0.0" 8080us] },
+  routes)
+||> startWebServer 
+```
+
+<!-v->
+### Serving HTTP with Suave
+
+```fsharp
+let inline okJson (o:^T) =
+  Suave.Writers.setHeader "Content-Type"
+                          "application/json; charset=utf-8" 
+  >=> Successful.OK (Json.serialize o |> Json.format)          
+    
+let badRequest err =
+  RequestErrors.BAD_REQUEST ("invalid request: " + err)
+
+let post urlParam (ctx:Context) =
+  async {
+    let body =
+      Encoding.UTF8.GetString ctx.request.rawForm |> Json.tryParse
+    match body with
+    | Choice1Of2 json ->
+        match Json.tryDeserialize json with
+        | Choice1Of2 (request: Request) ->
+            ... // Do something useful and produce a response
+            return! okJson response ctx
+        | Choice2Of2 err ->
+            return! badRequest err ctx
+    | Choice2Of2 err ->
+        return! badRequest err ctx
+  }
+```
+
+<!-v->
+### Property-based testing with FsCheck
+
+```fsharp
+type Generators() =
+    static member Floats() =
+        Arb.Default.UInt32()
+        |> Arb.convert (float >> fun x -> x / 10.)
+                       (fun x -> uint32 x * 10u)
+
+[<Property(Arbitrary = [| typeof<Generators> |])>]
+let ``json roundtrips`` (original: State) =
+    Json.serialize original
+    |> Json.format
+    |> Json.parse
+    |> Json.deserialize
+    =! original
+```
+
+<!-v->
+### Turtle Web API
+The goal: JSON HTTP endpoints 
+```
+GET /init =>
+  OK { pen: "down", ink: 0, position: {x: 0, y: 0}, angle: 0}
+POST {state} /pen-up => OK {state}
+POST {state} /pen-down => OK {state}
+POST {state} /move-to/20-20 => OK {state}
+POST {state} /move/10 => OK {state}
+POST {state} /turn/90 => OK {state}
+```
+* `dotnet add Lab package Chiron`
+* `dotnet add Lab package Suave`
+* `dotnet add Tests package FsCheck`
+* Paste [this](https://gist.github.com/et1975/b2dd534c1e4aaead361da67fa8049dee#file-library-fs) over `Lab/Library.fs`
+* Save [this](https://gist.github.com/et1975/b2dd534c1e4aaead361da67fa8049dee#file-program-fs) as `Lab/Program.fs`
+* Save [this](https://gist.github.com/et1975/b2dd534c1e4aaead361da67fa8049dee#file-webtests-fs) as `Tests/WebTests.fs`
+
+Add both files to the respective project files and get the tests to pass.
+
+<!-v->
+### Convert Lab to an application
+Edit `Lab.fsproj`:
+
+```xml
+<Target>Exec</Target>
+<TargetFramework>netcoreapp3.1</TargetFramework>
+```
+
+Run it: `dotnet run --project Lab`
+
+<!-s->
+### Keep exploring
+
+* https://fsharpforfunandprofit.com/
+* https://learning.oreilly.com/library/view/domain-modeling-made/9781680505481/
+* https://app.pluralsight.com/library/courses/fsharp-jumpstart/table-of-contents

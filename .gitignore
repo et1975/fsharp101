@@ -1,0 +1,5 @@
+_s/
+.ionide/
+node_modules/
+bin/
+obj/

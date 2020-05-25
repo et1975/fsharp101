@@ -1,0 +1,13 @@
+{
+  "name": "fsharp101",
+  "version": "1.0.0",
+  "repository": "private",
+  "scripts": {
+    "start": "reveal-md slides/index.md -w",
+    "publish": "rm -rf _s/* && reveal-md slides/index.md --static _s && mkdir _s/assets && cp -r theme _s/assets && sed -i '' 's/_assets/assets/g' _s/index.* && gh-pages -d _s"
+  },
+  "devDependencies": {
+    "reveal-md": "^3.4.7",
+    "gh-pages": "^2.2.0"
+  }
+}
