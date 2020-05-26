@@ -191,10 +191,13 @@ and odd x =
 </script></section><section data-markdown><script type="text/template">
 ### Pattern matching
 Core DUs:
-* `type Result<'ok,'err> = Ok of 'ok | Error of 'err`
-* `type Option<'t> = Some of 't | None`
-* `type Choice<'a,'b> = Choice1Of2 of 'a | Choice2Of2 of 'b`
-* `type Choice<'a,'b,'c> = Choice1Of3 of 'a | Choice2Of3 of 'b | Choice3Of3 of 'c`
+```fsharp
+type Result<'ok,'err> = Ok of 'ok | Error of 'err
+type Option<'t> = Some of 't | None
+type Choice<'a,'b> = Choice1Of2 of 'a | Choice2Of2 of 'b
+type Choice<'a,'b,'c> = 
+  Choice1Of3 of 'a | Choice2Of3 of 'b | Choice3Of3 of 'c
+```
 
 Pattern matching:
 ```fsharp
@@ -202,18 +205,22 @@ let f x =
   match x with
   | Ok v -> doSomething v
   | Error err -> log err
+
+let (x,y) = z
+let { X = x; Y = y } = r
+let (SingleCaseDU (a,b)) = singleCaseDU
 ```
 
 
 </script></section><section data-markdown><script type="text/template">
 ### IDE
 1. https://code.visualstudio.com/download
-2. Press `Cmd + Shift + P` and enter the following to install
+1. Press `Cmd + Shift + P` and enter the following to install
    - the Ionide extension for VS Code:</br>
     `ext install ionide-fsharp`
    - the MS Project support for VS Code:</br>
     `ext install msbuild-project-tools`
-3. Open your command prompt: `Ctrl + ~`
+1. Open your command prompt: `Ctrl + ~`
 
 </script></section><section data-markdown><script type="text/template">
 ### Code organizatioin and deployment
@@ -227,11 +234,13 @@ Unit of deployment: Assembly
 
 </script></section><section data-markdown><script type="text/template">
 ### Projects
-1. `mkdir fsharp101`
+1. `mkdir fsharp101 && cd fsharp101`
 1. `dotnet --info`
 1. `dotnet new globaljson --sdk-version 3.1.100`
 1. `dotnet new -h`
 1. `dotnet new xunit -lang f# -n Tests`
+1. `code .`
+1. `Ctrl + Shift + B`
 
 Major elements:
 * `PropertyGroup`
@@ -271,13 +280,13 @@ add a reference to it from our Tests project:
 
 `dotnet add Tests reference Lab`
 
-* Paste [this]() over the `Lab/Library.fs` content.
-* Paste [this]() over the `Tests/Tests.fs` content.
+* Paste [this](https://gist.github.com/et1975/10202cb534f595559d4afebe786a51d2#file-library-fs) over the `Lab/Library.fs` content.
+* Paste [this](https://gist.github.com/et1975/10202cb534f595559d4afebe786a51d2#file-tests-fs) over the `Tests/Tests.fs` content.
 
 Define the types and the `update` function and get the tests to pass.
 
 </script></section><section data-markdown><script type="text/template">
-### Intermission
+### Review
 
 </script></section></section><section ><section data-markdown><script type="text/template">
 ### Active patterns
@@ -316,7 +325,7 @@ let h = f >> g
 ```
 
 </script></section><section data-markdown><script type="text/template">
-### Composition of "boxed" values
+### Composition using "boxed" values
 
 ```fsharp
 let f (a:string) = 
@@ -418,14 +427,34 @@ let post urlParam (ctx:Context) =
       Encoding.UTF8.GetString ctx.request.rawForm |> Json.tryParse
     match body with
     | Choice1Of2 json ->
-        match json |> Json.tryDeserialize with
+        match Json.tryDeserialize json with
         | Choice1Of2 (request: Request) ->
+            ... // Do something useful and produce a response
             return! okJson response ctx
         | Choice2Of2 err ->
             return! badRequest err ctx
     | Choice2Of2 err ->
         return! badRequest err ctx
   }
+```
+
+</script></section><section data-markdown><script type="text/template">
+### Property-based testing with FsCheck
+
+```fsharp
+type Generators() =
+    static member Floats() =
+        Arb.Default.UInt32()
+        |> Arb.convert (float >> fun x -> x / 10.)
+                       (fun x -> uint32 x * 10u)
+
+[<Property(Arbitrary = [| typeof<Generators> |])>]
+let ``json roundtrips`` (original: State) =
+    Json.serialize original
+    |> Json.format
+    |> Json.parse
+    |> Json.deserialize
+    =! original
 ```
 
 </script></section><section data-markdown><script type="text/template">
@@ -436,17 +465,29 @@ GET /init =>
   OK { pen: "down", ink: 0, position: {x: 0, y: 0}, angle: 0}
 POST {state} /pen-up => OK {state}
 POST {state} /pen-down => OK {state}
-POST {state} /move-to/%s => OK {state}
-POST {state} /move/%d => OK {state}
-POST {state} /turn/%d => OK {state}
+POST {state} /move-to/20-20 => OK {state}
+POST {state} /move/10 => OK {state}
+POST {state} /turn/90 => OK {state}
 ```
 * `dotnet add Lab package Chiron`
 * `dotnet add Lab package Suave`
 * `dotnet add Tests package FsCheck`
-* Save [this]() as `Lab/Program.fs`
-* Save [this]() as `Tests/WebTests.fs`
+* Paste [this](https://gist.github.com/et1975/b2dd534c1e4aaead361da67fa8049dee#file-library-fs) over `Lab/Library.fs`
+* Save [this](https://gist.github.com/et1975/b2dd534c1e4aaead361da67fa8049dee#file-program-fs) as `Lab/Program.fs`
+* Save [this](https://gist.github.com/et1975/b2dd534c1e4aaead361da67fa8049dee#file-webtests-fs) as `Tests/WebTests.fs`
 
 Add both files to the respective project files and get the tests to pass.
+
+</script></section><section data-markdown><script type="text/template">
+### Convert Lab to an application
+Edit `Lab.fsproj`:
+
+```xml
+<Target>Exec</Target>
+<TargetFramework>netcoreapp3.1</TargetFramework>
+```
+
+Run it: `dotnet run --project Lab`
 
 </script></section></section><section  data-markdown><script type="text/template">
 ### Keep exploring
