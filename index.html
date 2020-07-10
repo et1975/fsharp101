@@ -36,7 +36,7 @@ It works in scripting (`.fsx`) and project-based variants.
 
 </script></section><section data-markdown><script type="text/template">
 ### Installation
-Download .NET Core SDK 3.1.100:
+Download .NET Core SDK 3.1.300:
 https://dotnet.microsoft.com/download
 
 Terminology:
@@ -222,7 +222,7 @@ let (SingleCaseDU (a,b)) = singleCaseDU
 </script></section><section data-markdown><script type="text/template">
 ### IDE
 1. https://code.visualstudio.com/download
-1. Press `Cmd + Shift + P` and enter the following to install
+1. Press `Ctrl + Shift + P` and enter the following to install
    - the Ionide extension for VS Code:</br>
     `ext install ionide-fsharp`
    - the MS Project support for VS Code:</br>
@@ -246,7 +246,7 @@ Unit of deployment: Assembly
 1. `dotnet new globaljson --sdk-version 3.1.300`
 1. `dotnet new -h`
 1. `dotnet new xunit -lang f# -n Tests`
-1. `code .`
+1. `code Tests`
 1. `Ctrl + Shift + B`
 
 Major elements:
@@ -281,6 +281,8 @@ Run the tests:
 
 </script></section><section data-markdown><script type="text/template">
 ### Add a library project
+Back in the `fsharp101` directory:
+
 `dotnet new classlib -lang f# -n Lab`
 
 add a reference to it from our Tests project:
