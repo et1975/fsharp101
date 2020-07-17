@@ -27,7 +27,7 @@ It works in scripting (`.fsx`) and project-based variants.
 
 <!-v->
 ### Installation
-Download .NET Core SDK 3.1.100:
+Download .NET Core SDK 3.1.300:
 https://dotnet.microsoft.com/download
 
 Terminology:
@@ -199,13 +199,18 @@ Pattern matching examples:
 ```fsharp
 let f x =
   match x with
-  | Choice1Of3 v -> doSomething v
-  | Choice2Of3 err -> log err
+  | Choice1Of3 v -> ignore v
+  | Choice2Of3 err -> ignore err
   | _ -> ()
 
 let konst x _ = x
 let f ((x,y) as z) = x + y; z
+
+let r = { X = 1; Y = ""} 
 let { X = x; Y = y } = r
+
+type SingleCaseDU = SingleCaseDU of int * string
+let singleCaseDU = SingleCaseDU (1,"")
 let (SingleCaseDU (a,b)) = singleCaseDU
 ```
 
@@ -213,7 +218,7 @@ let (SingleCaseDU (a,b)) = singleCaseDU
 <!-v->
 ### IDE
 1. https://code.visualstudio.com/download
-1. Press `Cmd + Shift + P` and enter the following to install
+1. Press `Ctrl + Shift + P` and enter the following to install
    - the Ionide extension for VS Code:</br>
     `ext install ionide-fsharp`
    - the MS Project support for VS Code:</br>
@@ -237,7 +242,7 @@ Unit of deployment: Assembly
 1. `dotnet new globaljson --sdk-version 3.1.300`
 1. `dotnet new -h`
 1. `dotnet new xunit -lang f# -n Tests`
-1. `code .`
+1. `code Tests`
 1. `Ctrl + Shift + B`
 
 Major elements:
@@ -272,6 +277,8 @@ Run the tests:
 
 <!-v->
 ### Add a library project
+Back in the `fsharp101` directory:
+
 `dotnet new classlib -lang f# -n Lab`
 
 add a reference to it from our Tests project:
@@ -314,8 +321,8 @@ let f (a:string) =
 
 let g (b:Result<int,string>) = 
   match b with
-  | Ok x -> string x
-  | Error err -> err
+  | Ok x -> string x |> Ok
+  | Error err -> Error err
 
 let h = f >> g
 
@@ -365,6 +372,22 @@ expr { return ... }
 expr { return! ... }
 expr { match! ... }
 ```
+
+<!-v->
+### `inline` and Statically-Resolved Type Parameters (SRTPs)
+
+In addition to run-time generics (`'t`), F# support-compile generics (`^t`) via "inlining":
+
+```fsharp
+let inline (|TaskInProgress|TaskDone|) (task:^t) =
+    let inline finished t =
+        (^t : (member Finished : _ option) t).IsSome
+    match task with
+    | task when finished task -> TaskDone task
+    | task -> TaskInProgress task
+
+```
+> https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/generics/statically-resolved-type-parameters
 
 <!-v->
 ### JSON serialization with Chiron
