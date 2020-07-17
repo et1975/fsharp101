@@ -330,8 +330,8 @@ let f (a:string) =
 
 let g (b:Result<int,string>) = 
   match b with
-  | Ok x -> string x
-  | Error err -> err
+  | Ok x -> string x |> Ok
+  | Error err -> Error err
 
 let h = f >> g
 
@@ -381,6 +381,22 @@ expr { return ... }
 expr { return! ... }
 expr { match! ... }
 ```
+
+</script></section><section data-markdown><script type="text/template">
+### `inline` and Statically-Resolved Type Parameters (SRTPs)
+
+In addition to run-time generics (`'t`), F# support-compile generics (`^t`) via "inlining":
+
+```fsharp
+let inline (|TaskInProgress|TaskDone|) (task:^t) =
+    let inline finished t =
+        (^t : (member Finished : _ option) t).IsSome
+    match task with
+    | task when finished task -> TaskDone task
+    | task -> TaskInProgress task
+
+```
+> https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/generics/statically-resolved-type-parameters
 
 </script></section><section data-markdown><script type="text/template">
 ### JSON serialization with Chiron
