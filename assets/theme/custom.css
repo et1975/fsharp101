@@ -1,4 +1,4 @@
-@import url('https://pagecdn.io/lib/reveal/3.8.0/css/theme/league.min.css');
+@import 'league.css';
 
 .reveal h3 {
     font-size: 1.7em;

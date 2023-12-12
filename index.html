@@ -385,7 +385,7 @@ expr { match! ... }
 </script></section><section data-markdown><script type="text/template">
 ### `inline` and Statically-Resolved Type Parameters (SRTPs)
 
-In addition to run-time generics (`'t`), F# supports compile-time generics (`^t`) via "inlining":
+In addition to run-time generics (`'t`), F# support-compile generics (`^t`) via "inlining":
 
 ```fsharp
 let inline (|TaskInProgress|TaskDone|) (task:^t) =
