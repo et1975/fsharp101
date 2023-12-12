@@ -1,6 +1,6 @@
 {
   "name": "fsharp101",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "repository": "private",
   "scripts": {
     "start": "reveal-md slides/index.md -w",
@@ -8,6 +8,6 @@
   },
   "devDependencies": {
     "reveal-md": "^3.4.7",
-    "gh-pages": "^2.2.0"
+    "gh-pages": "^6.1.0"
   }
 }
